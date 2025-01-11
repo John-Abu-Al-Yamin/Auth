@@ -5,7 +5,6 @@ const axiosInstance = axios.create({
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
 });
 
@@ -23,6 +22,7 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+// Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
     return response.data;
