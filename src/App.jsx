@@ -1,33 +1,21 @@
-import { Route, Routes, Navigate } from "react-router-dom";
-import "./App.css";
-import Home from "./components/Home/Home";
-import Login from "./components/Auth/Login";
-import Register from "./components/Auth/Register";
+import { Routes as RouterRoutes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-
-function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
-}
+import getRoutes from "./routes";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 
 function App() {
-  const token = localStorage.getItem("token");
+  const routes = getRoutes(); // Call the function to get the routes array
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-gradient-to-br from-indigo-50 via-white to-indigo-50">
-      <Routes>
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route
-          path="/login"
-          element={token ? <Navigate to="/" /> : <Login />}
-        />
-        <Route
-          path="/register"
-          element={token ? <Navigate to="/" /> : <Register />}
-        />
-      </Routes>
-      <ToastContainer />
-    </div>
+      <div className="min-h-screen overflow-y-auto bg-gradient-to-br from-indigo-50 via-white to-indigo-50">
+        <RouterRoutes>
+          {routes.map((route) => (
+            <Route key={route.path} {...route} />
+          ))}
+        </RouterRoutes>
+        <ToastContainer />
+      </div>
   );
 }
 

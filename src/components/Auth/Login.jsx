@@ -1,11 +1,10 @@
 import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaBuilding } from "react-icons/fa";
-
-import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -20,26 +19,18 @@ const LoginSchema = Yup.object().shape({
 });
 
 const Login = () => {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const { login, isLoading } = useAuth();
 
   const handleLogin = async (values, { setSubmitting, setFieldError }) => {
     try {
-      setIsLoading(true);
-      const res = await axiosInstance.post("/auth/login", values);
-      const token = res.data.token;
-      localStorage.setItem("token", token);
-      toast.success(res.data.message || "Login Success");
-      navigate("/");
+      await login(values);
     } catch (error) {
-      console.error(error.response);
       if (error.response?.data?.field) {
         setFieldError(error.response.data.field, error.response.data.message);
       } else {
         toast.error(error.response?.data?.message || "Login Failed");
       }
     } finally {
-      setIsLoading(false);
       setSubmitting(false);
     }
   };

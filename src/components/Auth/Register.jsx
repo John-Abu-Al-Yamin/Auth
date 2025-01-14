@@ -1,11 +1,10 @@
 import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaPhoneAlt, FaBriefcase, FaBuilding } from "react-icons/fa";
-
-import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 const RegisterSchema = Yup.object().shape({
   name: Yup.string().required("Name is required").max(255, "Name is too long"),
@@ -35,31 +34,26 @@ const RegisterSchema = Yup.object().shape({
     .oneOf(["B2C", "B2B"], "Please select a valid client type")
     .required("Client type is required"),
   issuing_authority: Yup.string(),
-  company_name: Yup.string(),
-  commercial_license_number: Yup.string(),
+  company_name: Yup.string().required("Company name is required"),
+
+  commercial_license_number: Yup.string().required(
+    "Commercial license number is required"
+  ),
 });
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const { register, isLoading } = useAuth();
 
   const handleRegister = async (values, { setSubmitting, setFieldError }) => {
     try {
-      setIsLoading(true);
-      const res = await axiosInstance.post("/auth/register", values);
-      const token = res.data.token;
-      localStorage.setItem("token", token);
-      toast.success(res.data.message || "Registration Successful");
-      navigate("/");
+      await register(values);
     } catch (error) {
-      console.error(error.response);
       if (error.response?.data?.field) {
         setFieldError(error.response.data.field, error.response.data.message);
       } else {
         toast.error(error.response?.data?.message || "Registration Failed");
       }
     } finally {
-      setIsLoading(false);
       setSubmitting(false);
     }
   };
@@ -77,12 +71,12 @@ const Register = () => {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join us to start your journey or{" "}
+            Already have an account?{" "}
             <Link
               to="/login"
               className="text-indigo-600 hover:text-indigo-500 font-medium"
             >
-              sign in to your account
+              Sign in
             </Link>
           </p>
         </div>
